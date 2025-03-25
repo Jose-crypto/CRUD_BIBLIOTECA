@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Libros</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+</h:head>
+
+<h:body>
+
+    <!-- Barra de navegación (Navbar) estilizada con Bootstrap -->
+    <h:form>
+        <nav class="navbar navbar-expand-lg dark bg-dark">
+            <a class="navbar-brand text-light m-2" href="autores.xhtml">Prestamos APP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <p:commandButton value="Prestamos" icon="pi pi-reply" action="#{navegacionBeans.irPrestamos()}" styleClass="nav-link" />
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Editoriales" icon="pi pi-plus" action="#{navegacionBeans.irEditoriales()}" styleClass="nav-link" />
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Autores" icon="pi pi-users" action="#{navegacionBeans.irAutores()}" styleClass="nav-link" />
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Cerrar Sesión" icon="pi pi-sign-out" action="#{loginBean.logout}" styleClass="nav-link" />
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </h:form>
+
+    <div class="container mt-4">
+        <h1 class="text-center text-uppercase">¡Libros!</h1>
+        <p:growl id="msj" showDetail="true" life="3000" />
+
+        <!-- Botón para abrir el diálogo Registrar Libro -->
+        <p:commandButton value="Registrar Libro" icon="pi pi-plus" update="dlgCreateLibro" oncomplete="PF('dlgCreateLibro').show() #{librosBeans.cargarAutores_Editoriales()}  " class="btn btn-primary mb-4" />
+
+        <!-- Dialog para agregar un nuevo Libro -->
+        <p:dialog header="Registrar Nuevo Libro" widgetVar="dlgCreateLibro" modal="true" showEffect="fade" hideEffect="fade" id="dlgCreateLibro">
+            <h:form id="formCreateLibro" enctype="multipart/form-data">
+                <h:panelGrid id="panelGF" columns="2" cellpadding="5">
+                    <h:outputLabel for="tituloLibro" value="Titulo: " />
+                    <h:inputText id="tituloLibro" value="#{librosBeans.libro.title}" required="true" class="form-control" />
+
+                    <h:outputLabel for="autor" value="Autor:" />
+                    <p:selectOneMenu id="autor" value="#{librosBeans.autorId}" required="true">
+                        <f:selectItem itemLabel="Seleccione un Autor" itemValue="#{null}" />
+                        <f:selectItems value="#{librosBeans.autoresList}" var="autor" itemLabel="#{autor.nombre}" itemValue="#{autor.id}" />
+                    </p:selectOneMenu>
+
+
+                    <h:outputLabel for="editorial" value="Editorial:" />
+                    <p:selectOneMenu id="editorial" value="#{librosBeans.editorialId}" required="true">
+                        <f:selectItem itemLabel="Seleccione una Editorial" itemValue="#{null}" />
+                        <f:selectItems value="#{librosBeans.editorialesList}" var="editorial" itemLabel="#{editorial.nombre}" itemValue="#{editorial.idEditorial}" />
+                    </p:selectOneMenu>
+
+
+                    <h:outputLabel for="stockLibro" value="Stock: " />
+                    <h:inputText id="stockLibro" value="#{librosBeans.libro.stock}" required="true" class="form-control" />
+
+                    <h:outputLabel for="imagen" value="Imagen"/>
+                    <p:fileUpload id="imagen" value="#{librosBeans.imagen}" mode="simple" />
+
+                    <!-- Botón para guardar el nuevo libro -->
+                    <p:commandButton value="Guardar" action="#{librosBeans.crearLibros}" update=":tablap formCreateLibro :msj" oncomplete="PF('dlgCreateLibro').hide();" icon="pi pi-check" class="btn btn-success mt-3" />
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+
+        <!-- Dialog para Editar un Libro -->
+        <p:dialog header="Editar Libro" resizable="false" widgetVar="modalEditLibro" modal="true" showEffect="fade" hideEffect="fade">
+            <h:form id="editLibroForm">
+                <h:panelGrid id="panelGEditLibro" columns="2" cellpadding="5">
+                    <h:outputLabel for="tituloLibroEdit" value="Titulo: " />
+                    <h:inputText id="tituloLibroEdit" value="#{librosBeans.libro.title}" required="true" class="form-control" />
+
+                    <h:outputLabel for="autorEdit" value="Autor:" />
+                    <p:selectOneMenu id="autorEdit" value="#{librosBeans.autorId}" required="true">
+                        <f:selectItem itemLabel="Seleccione un Autor" itemValue="#{null}" />
+                        <f:selectItems value="#{librosBeans.autoresList}" var="autor" itemLabel="#{autor.nombre}" itemValue="#{autor.id}" />
+                    </p:selectOneMenu>
+
+
+                    <h:outputLabel for="editorialEdit" value="Editorial:" />
+                    <p:selectOneMenu id="editorialEdit" value="#{librosBeans.editorialId}" required="true">
+                        <f:selectItem itemLabel="Seleccione una Editorial" itemValue="#{null}" />
+                        <f:selectItems value="#{librosBeans.editorialesList}" var="editorial" itemLabel="#{editorial.nombre}" itemValue="#{editorial.idEditorial}" />
+                    </p:selectOneMenu>
+
+
+                    <h:outputLabel for="stockLibroEdit" value="Stock: " />
+                    <h:inputText id="stockLibroEdit" value="#{librosBeans.libro.stock}" required="true" class="form-control" />
+                    <p:commandButton value="Actualizar Libro" action="#{librosBeans.actualizarLibros()}" update=":tablap editLibroForm :msj" oncomplete="PF('modalEditLibro').hide();" class="btn btn-warning mt-3"/>
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+
+        <h:form>
+        </h:form>
+        <div class="card">
+            <h:form id="tablap">
+                <div class="form-row d-flex pb-2 mt-2 ">
+                    <!-- Filtro por nombre -->
+                    <div class="form-group col-md-4">
+                        <h:outputLabel for="nombreLibro" value="Libro" />
+                        <h:inputText id="nombreLibro" value="#{librosBeans.nombrebusqueda}" class="form-control" placeholder="Nombre del libro"/>
+                    </div>
+                    <!-- Botón Filtrar -->
+                    <div class="form-group col-md-4 d-flex align-items-end">
+                        <p:commandButton value="Filtrar" action="#{librosBeans.filtrosLibros()}" update="tblLibros" styleClass="btn btn-primary" />
+                    </div>
+                </div>
+
+                <p:dataTable  id="tblLibros" var="Librop" value="#{empty librosBeans.libros ? [] : librosBeans.libros}" class="table table-striped" paginator="true" rows="7">
+                    <p:column headerText="Codigo">
+                        <h:outputText value="#{Librop.id}" />
+                    </p:column>
+
+                    <p:column headerText="Libro">
+                        <h:outputText value="#{Librop.title}" />
+                    </p:column>
+
+                    <p:column headerText="Autor">
+                        <h:outputText value="#{Librop.autores.nombre}" />
+                    </p:column>
+
+                    <p:column headerText="Editorial">
+                        <h:outputText value="#{Librop.editoriales.nombre}" />
+                    </p:column>
+                    <p:column headerText="Stock">
+                        <h:outputText value="#{Librop.stock}" />
+                    </p:column>
+                    <p:column headerText="Imagen">
+                        <h:outputLink value="#{librop.imagen}" target="_blank">
+                            <h:graphicImage value="#{librop.imagen}" width="50" />
+                        </h:outputLink>
+                    </p:column>
+
+                    <p:column headerText="Acciones">
+                        <p:commandButton value="Editar" icon="pi pi-pencil" action="#{librosBeans.cargarDatosLibros(Librop)}" update=":editLibroForm" oncomplete="PF('modalEditLibro').show()" class="btn btn-warning btn-sm" />
+                        <p:commandButton value="Eliminar" icon="pi pi-trash" action="#{librosBeans.eliminarLibros(Librop)}" style="background-color:#cd2626;" update=":tablap  :msj" class="btn btn-danger btn-sm" />
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </div>
+
+    </div>
+
+    <!-- CDN de Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</h:body>
+</html>

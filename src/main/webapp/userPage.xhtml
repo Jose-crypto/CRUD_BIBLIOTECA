@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Página de Inicio</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+</h:head>
+<h:body>
+
+    <!-- Barra de navegación (Navbar) estilizada con Bootstrap -->
+    <h:form>
+        <nav class="navbar navbar-expand-lg dark bg-dark">
+            <a class="navbar-brand text-light m-2" href="autores.xhtml">Prestamos APP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link disabled " style="color:white" href="#">¡Bienvenido <strong>#{loginBean.username}</strong> a la Interfaz de Prestamo de  LIBROS!  </a>
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Cerrar Sesión" icon="pi pi-sign-out" action="#{loginBean.logout}" styleClass="nav-link" />
+                    </li>
+                </ul>
+
+
+            </div>
+        </nav>
+    </h:form>
+
+    <div class="container mt-4">
+        <h1 class="text-center text-uppercase">¡Libros Prestados!</h1>
+        <p:growl id="msj" showDetail="true" life="3000" />
+
+
+        <p:commandButton value="Prestar Libro" icon="pi pi-plus" update="dlgCreatePrestamo" oncomplete="PF('dlgCreatePrestamo').show()" class="btn btn-primary mb-4"/>
+        <!-- Modal de Registro de Préstamo -->
+        <p:dialog header="Registrar Préstamo" widgetVar="dlgCreatePrestamo" modal="true" showEffect="fade" hideEffect="fade" id="dlgCreatePrestamo">
+            <h:form id="formCreatePrestamo">
+                <h:panelGrid id="panelGF" columns="3" cellpadding="5">
+
+                    <!-- Selección del libro -->
+                    <h:outputLabel for="libro" value="Libro:" />
+                    <p:selectOneMenu id="libro" value="#{prestamoBeans.librosID}" required="true">
+                        <f:selectItem itemLabel="Seleccione un libro" itemValue="#{null}" />
+                        <f:selectItems value="#{prestamoBeans.librosList}" var="libro" itemLabel="#{libro.title}" itemValue="#{libro.id}" />
+                    </p:selectOneMenu>
+
+                    <!-- Fecha de préstamo -->
+                    <h:outputLabel for="fechaPrestamo" value="Fecha de Préstamo:" />
+                    <p:calendar id="fechaPrestamo" value="#{prestamoBeans.prestamo.fechaPrestamo}" pattern="yyyy-MM-dd" required="true" showIcon="true" />
+                    <!-- Fecha de devolución -->
+                    <h:outputLabel for="fechaDevolucion" value="Fecha de Devolución:" />
+                    <p:calendar id="fechaDevolucion" value="#{prestamoBeans.prestamo.fechaDevolucion}" pattern="yyyy-MM-dd" required="true" showIcon="true" />
+
+                    <!-- Campo para la cantidad de libros -->
+                    <h:outputLabel for="cantidad" value="Cantidad de libros:" />
+                    <p:spinner id="cantidad" value="#{prestamoBeans.prestamo.cantidad}" min="1" step="1" required="true" />
+                </h:panelGrid>
+                <!-- Botón para guardar el préstamo -->
+                <p:commandButton value="Guardar" action="#{prestamoBeans.crearPrestamo()}" update=":tablap panelGF :msj" oncomplete="PF('dlgCreatePrestamo').hide();" icon="pi pi-check" class="btn btn-success mt-3" />
+            </h:form>
+        </p:dialog>
+
+        <p:commandButton value="Catalogo Libros" icon="pi pi-book" update="dlgCatalogo" oncomplete="PF('dlgCatalogo').show()" class="btn mb-4" style="background-color: crimson"/>
+        <!-- Botón para abrir el diálogo -->
+        <!-- El diálogo con la lista de libros -->
+        <p:dialog id="dlgCatalogo" header="Catálogo de Libros" widgetVar="dlgCatalogo" modal="true" resizable="false">
+            <div class="card">
+                <h:form >
+                    <div class="form-row d-flex pb-2 mt-2 ">
+                        <!-- Filtro por nombre -->
+                        <div class="form-group col-md-4">
+                            <h:outputLabel for="nombreLibro" value="Libro" />
+                            <h:inputText id="nombreLibro" value="#{librosBeans.nombrebusqueda}" class="form-control" placeholder="Nombre del libro"/>
+                        </div>
+                        <!-- Botón Filtrar -->
+                        <div class="form-group col-md-4 d-flex align-items-end">
+                            <p:commandButton value="Filtrar" action="#{librosBeans.filtrosLibros()}" update="tblLibros" styleClass="btn btn-primary" />
+                        </div>
+                    </div>
+
+                    <p:dataTable  id="tblLibros" var="Librop" value="#{empty librosBeans.libros ? [] : librosBeans.libros}" class="table table-striped" paginator="true" rows="7">
+                        <p:column headerText="Codigo">
+                            <h:outputText value="#{Librop.id}" />
+                        </p:column>
+
+                        <p:column headerText="Libro">
+                            <h:outputText value="#{Librop.title}" />
+                        </p:column>
+
+                        <p:column headerText="Autor">
+                            <h:outputText value="#{Librop.autores.nombre}" />
+                        </p:column>
+
+                        <p:column headerText="Editorial">
+                            <h:outputText value="#{Librop.editoriales.nombre}" />
+                        </p:column>
+                        <p:column headerText="Stock">
+                            <h:outputText value="#{Librop.stock}" />
+                        </p:column>
+                    </p:dataTable>
+                </h:form>
+            </div>
+        </p:dialog>
+
+
+        <div class="card">
+            <h:form id="tablap">
+
+                <p:dataTable  id="tblPRestamo" var="prestamo" value="#{empty prestamoBeans.consultarPrestamos(loginBean.id) ? [] : prestamoBeans.consultarPrestamos(loginBean.id)}" class="table table-striped" paginator="true" rows="7">
+                    <p:column headerText="Libro">
+                        #{prestamo.libro.title}
+                    </p:column>
+                    <p:column headerText="Usuario">
+                        #{prestamo.usuario.username}
+                    </p:column>
+                    <p:column headerText="Fecha Préstamo">
+                        #{prestamo.fechaPrestamo}
+                    </p:column>
+                    <p:column headerText="Devolución">
+                        #{prestamo.fechaDevolucion}
+                    </p:column>
+                    <p:column headerText="Cantidad">
+                        #{prestamo.cantidad}
+                    </p:column>
+                    <p:column headerText="Devuelto">
+                        <h:outputText value="#{prestamo.devuelto ? 'Sí' : 'No'}"/>
+                    </p:column>
+
+                    <p:column headerText="Acciones">
+                        <p:commandButton value="Devolver Libro" rendered="#{!prestamo.devuelto}" icon="pi pi-pencil" action="#{prestamoBeans.eliminarPrestamo(prestamo)}" update=":tablap"  class="btn dark btn-sm" />
+                        <!-- Campo de texto que muestra "Devuelto" cuando el libro ya ha sido devuelto -->
+                        <h:outputText value="Devuelto" rendered="#{prestamo.devuelto}" styleClass="text-success" />
+
+                        <!-- Alternativa: Si quieres un campo de input editable que diga "Devuelto", puedes hacerlo con <h:inputText> -->
+                        <h:inputText value="Devuelto" rendered="#{prestamo.devuelto}" disabled="true" styleClass="form-control text-success" />
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </div>
+
+
+    </div>
+
+
+</h:body>
+</html>

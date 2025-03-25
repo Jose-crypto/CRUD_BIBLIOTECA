@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Autores</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+</h:head>
+
+<h:body>
+
+    <!-- Barra de navegación (Navbar) estilizada con Bootstrap -->
+    <h:form>
+        <nav class="navbar navbar-expand-lg dark bg-dark">
+            <a class="navbar-brand text-light m-2" href="autores.xhtml">Prestamos APP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <p:commandButton value="Prestamos" icon="pi pi-reply" action="#{navegacionBeans.irPrestamos()}" styleClass="nav-link" />
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Libros" icon="pi pi-plus" action="#{navegacionBeans.irALibros()}" styleClass="nav-link" />
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Editoriales" icon="pi pi-plus" action="#{navegacionBeans.irEditoriales()}" styleClass="nav-link" />
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Cerrar Sesión" icon="pi pi-sign-out" action="#{loginBean.logout}" styleClass="nav-link" />
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </h:form>
+
+    <div class="container mt-4">
+        <h1 class="text-center text-uppercase">¡Autores!</h1>
+        <p:growl id="msj" showDetail="true" life="3000" />
+
+        <!-- Botón para abrir el diálogo Registrar Autor -->
+        <p:commandButton value="Registrar Autor" icon="pi pi-plus" update="dlgCrearUsuario" oncomplete="PF('dlgCrearUsuario').show()" class="btn btn-primary mb-4" />
+
+        <!-- Dialog para agregar un nuevo Autor -->
+        <p:dialog header="Crear Nuevo Autor" widgetVar="dlgCrearUsuario" modal="true" showEffect="fade" hideEffect="fade" id="dlgCrearUsuario">
+            <h:form id="formCreateUser">
+                <h:panelGrid id="panelGF" columns="2" cellpadding="5">
+                    <h:outputLabel for="nombre" value="Nombre: " />
+                    <h:inputText id="nombre" value="#{autoresBeans.autor.nombre}" required="true" class="form-control" />
+
+                    <h:outputLabel for="apellido" value="Apellido: " />
+                    <h:inputText id="apellido" value="#{autoresBeans.autor.apellido}" required="true" class="form-control" />
+                    <!-- Botón para guardar el nuevo usuario -->
+                    <p:commandButton value="Guardar" action="#{autoresBeans.crearAutor()}" update=":tablap panelGF :msj" oncomplete="PF('dlgCrearUsuario').hide();" icon="pi pi-check" class="btn btn-success mt-3" />
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+
+        <!-- Dialog para Editar un Autor -->
+        <p:dialog header="Editar Autor" resizable="false" widgetVar="modalEditAutor" modal="true" showEffect="fade" hideEffect="fade">
+            <h:form id="editAutorForm">
+                <p:panelGrid columns="2">
+                    <h:outputLabel for="ID" value="Nombres: " />
+                    <h:inputText id="ID" value="#{autoresBeans.autor.id}" required="true" readonly="true" class="form-control"/>
+
+                    <h:outputLabel for="apellidoEditAutpr" value="Nombres: " />
+                    <h:inputText id="nombreEditAutpr" value="#{autoresBeans.autor.nombre}" required="true" class="form-control" />
+                    <h:outputLabel for="apellidoEditAutpr" value="Apellidos: " />
+                    <h:inputText id="apellidoEditAutpr" value="#{autoresBeans.autor.apellido}" required="true" class="form-control" />
+                    <p:commandButton value="Actualizar Autor" action="#{autoresBeans.actualizarAutor()}" update=":tablap editAutorForm :msj" oncomplete="PF('modalEditAutor').hide();" class="btn btn-warning mt-3"/>
+                </p:panelGrid>
+            </h:form>
+        </p:dialog>
+
+        <div class="card">
+            <h:form id="tablap">
+                <div class="form-row d-flex pb-2 mt-2 ">
+                    <!-- Filtro por nombre -->
+                    <div class="form-group col-md-4">
+                        <h:outputLabel for="nombreAutorFilter" value="Autor" />
+                        <h:inputText id="nombreAutorFilter" value="#{autoresBeans.nombrebusqueda}" class="form-control" placeholder="Nombre del Autor"/>
+                    </div>
+                    <!-- Botón Filtrar -->
+                    <div class="form-group col-md-4 d-flex align-items-end">
+                        <p:commandButton value="Filtrar" action="#{autoresBeans.filtrosEditorial()}" update="tblAutores" styleClass="btn btn-primary" />
+                    </div>
+                </div>
+                <p:dataTable  id="tblAutores" var="autor" value="#{empty autoresBeans.autores ? [] : autoresBeans.autores}" class="table table-striped" paginator="true" rows="7">
+                    <p:column headerText="Codigo">
+                        <h:outputText value="#{autor.id}" />
+                    </p:column>
+
+                    <p:column headerText="Nombre">
+                        <h:outputText value="#{autor.nombre}" />
+                    </p:column>
+
+                    <p:column headerText="Apellido">
+                        <h:outputText value="#{autor.apellido}" />
+                    </p:column>
+
+                    <p:column headerText="Acciones">
+                        <p:commandButton value="Editar" icon="pi pi-pencil" action="#{autoresBeans.cargarDatos(autor)}" update=":editAutorForm" oncomplete="PF('modalEditAutor').show()" class="btn btn-warning btn-sm" />
+                        <p:commandButton value="Eliminar" icon="pi pi-trash" action="#{autoresBeans.eliminarAutor(autor)}" style="background-color:#cd2626;" update=":tablap  :msj" class="btn btn-danger btn-sm" />
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </div>
+
+    </div>
+
+    <!-- CDN de Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</h:body>
+</html>

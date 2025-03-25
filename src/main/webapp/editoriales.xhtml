@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:p="http://primefaces.org/ui">
+<h:head>
+    <title>Editoriales</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+</h:head>
+
+<h:body>
+
+    <!-- Barra de navegación (Navbar) estilizada con Bootstrap -->
+    <h:form>
+        <nav class="navbar navbar-expand-lg dark bg-dark">
+            <a class="navbar-brand text-light m-2" href="autores.xhtml">Prestamos APP</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <p:commandButton value="Prestamos" icon="pi pi-reply" action="#{navegacionBeans.irPrestamos()}" styleClass="nav-link" />
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Libros" icon="pi pi-plus" action="#{navegacionBeans.irALibros()}" styleClass="nav-link" />
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Autores" icon="pi pi-users" action="#{navegacionBeans.irAutores()}" styleClass="nav-link" />
+                    </li>
+                    <li class="nav-item">
+                        <p:commandButton value="Cerrar Sesión" icon="pi pi-sign-out" action="#{loginBean.logout}" styleClass="nav-link" />
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </h:form>
+
+    <div class="container mt-4">
+        <h1 class="text-center text-uppercase">¡Editoriales!</h1>
+        <p:growl id="msj" showDetail="true" life="3000" />
+
+        <!-- Botón para abrir el diálogo Registrar Editorial -->
+        <p:commandButton value="Registrar Editorial" icon="pi pi-plus" update="dlgCreateEdit" oncomplete="PF('dlgCreateEdit').show()" class="btn btn-primary mb-4" />
+
+        <!-- Dialog para agregar un nuevo Editorial -->
+        <p:dialog header="Registrar Nuevo Editorial" widgetVar="dlgCreateEdit" modal="true" showEffect="fade" hideEffect="fade" id="dlgCreateEdit">
+            <h:form id="formCreateEditorial">
+                <h:panelGrid id="panelGF" columns="2" cellpadding="5">
+                    <h:outputLabel for="nombre" value="Nombre: " />
+                    <h:inputText id="nombre" value="#{editorialBeans.editorial.nombre}" required="true" class="form-control" />
+                    <h:outputLabel for="Direccion" value="Direccion: " />
+                    <h:inputText id="Direccion" value="#{editorialBeans.editorial.direccion}" required="true" class="form-control" />
+                    <!-- Botón para guardar el nuevo usuario -->
+                    <p:commandButton value="Guardar" action="#{editorialBeans.crearEditorial()}" update=":tablap panelGF :msj" oncomplete="PF('dlgCreateEdit').hide();" icon="pi pi-check" class="btn btn-success mt-3" />
+                </h:panelGrid>
+            </h:form>
+        </p:dialog>
+
+        <!-- Dialog para Editar un Editorial -->
+        <p:dialog header="Editar Editorial" resizable="false" widgetVar="modalEditEditorial" modal="true" showEffect="fade" hideEffect="fade">
+            <h:form id="editEditorialForm">
+                <p:panelGrid columns="2">
+                    <h:outputLabel for="IDeditorial" value="Nombres: " />
+                    <h:inputText id="IDeditorial" value="#{editorialBeans.editorial.idEditorial}" required="true" readonly="true" class="form-control"/>
+                    <h:outputLabel for="nombreEditEditorial" value="Editorial: " />
+                    <h:inputText id="nombreEditEditorial" value="#{editorialBeans.editorial.nombre}" required="true" class="form-control" />
+                    <h:outputLabel for="EditDireccion" value="Direccion: " />
+                    <h:inputText id="EditDireccion" value="#{editorialBeans.editorial.direccion}" required="true" class="form-control" />
+                    <p:commandButton value="Actualizar Editorial" action="#{editorialBeans.actualizarEditorial()}" update=":tablap editEditorialForm :msj" oncomplete="PF('modalEditEditorial').hide();" class="btn btn-warning mt-3"/>
+                </p:panelGrid>
+            </h:form>
+        </p:dialog>
+
+        <h:form>
+        </h:form>
+        <div class="card">
+            <h:form id="tablap">
+                <div class="form-row d-flex pb-2 mt-2 ">
+                    <!-- Filtro por nombre -->
+                    <div class="form-group col-md-4">
+                        <h:outputLabel for="nombreEditorial" value="Editorial" />
+                        <h:inputText id="nombreEditorial" value="#{editorialBeans.nombrebusqueda}" class="form-control" placeholder="Nombre del editorial"/>
+                    </div>
+                    <!-- Botón Filtrar -->
+                    <div class="form-group col-md-4 d-flex align-items-end">
+                        <p:commandButton value="Filtrar" action="#{editorialBeans.filtrosEditorial()}" update="tblEditorial" styleClass="btn btn-primary" />
+                    </div>
+                </div>
+
+                <p:dataTable  id="tblEditorial" var="editorialp" value="#{empty editorialBeans.editoriales ? [] : editorialBeans.editoriales}" class="table table-striped" paginator="true" rows="7">
+                    <p:column headerText="Codigo">
+                        <h:outputText value="#{editorialp.idEditorial}" />
+                    </p:column>
+
+                    <p:column headerText="Editorial">
+                        <h:outputText value="#{editorialp.nombre}" />
+                    </p:column>
+
+                    <p:column headerText="Direccion">
+                        <h:outputText value="#{editorialp.direccion}" />
+                    </p:column>
+
+                    <p:column headerText="Acciones">
+                        <p:commandButton value="Editar" icon="pi pi-pencil" action="#{editorialBeans.cargarDatosEditorial(editorialp)}" update=":editEditorialForm" oncomplete="PF('modalEditEditorial').show()" class="btn btn-warning btn-sm" />
+                        <p:commandButton value="Eliminar" icon="pi pi-trash" action="#{editorialBeans.eliminarEditorial(editorialp)}" style="background-color:#cd2626;" update=":tablap  :msj" class="btn btn-danger btn-sm" />
+                    </p:column>
+                </p:dataTable>
+            </h:form>
+        </div>
+
+    </div>
+
+    <!-- CDN de Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</h:body>
+</html>
