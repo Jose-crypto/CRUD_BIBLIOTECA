@@ -30,7 +30,6 @@ public class AutoresBeans implements Serializable {
     private AutoresService autorService;
 
 
-    // Métodos para interactuar con la base de datos
 
     public List<Autores> getAutores() {
         if (autores == null) {
