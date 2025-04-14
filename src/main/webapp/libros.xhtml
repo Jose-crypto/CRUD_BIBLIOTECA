@@ -11,13 +11,11 @@
 
 <h:body>
 
-    <!-- Barra de NAVEGACION (Navbar) estilizada con Bootstrap -->
     <h:form>
         <nav class="navbar navbar-expand-lg dark bg-primary">
             <a class="navbar-brand text-light m-2" href="autores.xhtml">Prestamos APP</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav">
                     <li class="nav-item">
@@ -69,7 +67,6 @@
                     <h:inputText id="stockLibro" value="#{librosBeans.libro.stock}" required="true" class="form-control" />
 
                     <h:outputLabel for="imagen" value="Imagen"/>
-                    <p:fileUpload id="imagen" value="#{librosBeans.imagen}" mode="simple" />
 
                     <!-- Botón para guardar el nuevo libro -->
                     <p:commandButton value="Guardar" action="#{librosBeans.crearLibros}" update=":tablap formCreateLibro :msj" oncomplete="PF('dlgCreateLibro').hide();" icon="pi pi-check" class="btn btn-success mt-3" />
