@@ -44,7 +44,7 @@ public class AutoresBeans implements Serializable {
             autor.setNombre(autor.getNombre());
             autor.setApellido(autor.getApellido());
             autorService.crearAutores(autor);
-            this.mensaje="Autor Agregado Correctamente";
+            this.mensaje="Autoor Agregado Correctamente";
             autor = new Autores(); // Limpiar el formulario
             autores = autorService.obtenerTodosAutores();
             FacesMessage message = new FacesMessage("Autor Agregado Correctamente");
